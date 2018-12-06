@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.text.NumberFormat;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 /**
  * 参考：https://blog.csdn.net/A1032453509/article/details/78045957
@@ -71,7 +73,6 @@ public class Main {
         response.setHeader("Content-Type", contentType);
         //这里文件名换你想要的，inline表示浏览器直接实用
         //参考资料：http://hw1287789687.iteye.com/blog/2188500
-        response.setHeader("Content-Disposition", "inline;filename=" + fileName);
         response.setHeader("Content-Length", String.valueOf(contentLength));
         // Content-Range，格式为[要下载的开始位置]-[结束位置]/[文件总大小]
         response.setHeader("Content-Range", "bytes " + startByte + "-" + endByte + "/" + file.length());
@@ -83,7 +84,7 @@ public class Main {
         try {
             randomAccessFile = new RandomAccessFile(file,"r");// 读权限
             outputStream = new BufferedOutputStream(response.getOutputStream());
-            byte[] buff = new byte[4096];
+            byte[] buff = new byte[8192];
             int len = 0;
             randomAccessFile.seek(startByte);
             while ((transmitted + len) <= contentLength && (len = randomAccessFile.read(buff)) != -1) {
